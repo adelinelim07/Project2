@@ -11,6 +11,7 @@ users.get('/new', (req, res) => {
 // create a new user based on input in form
 
 users.post('/' , (req, res) => {
+  console.log("entereddd")
   req.body.password = bcrypt.hashSync(req.body.password,bcrypt.genSaltSync(10)) 
   User.create(req.body, (err, createdUser) => {
     if(err) {
