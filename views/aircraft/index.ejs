@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <% include ../partials/head.ejs %>
+        <link rel="stylesheet" href="/main.css" />
+    </head>
+    <body>
+        <% include ../partials/navbar.ejs %>
+
+        <!--header-->
+        <div class="Header-banner">
+            <h1 id="header">Aircraft Portfolio</h1>
+        </div>
+        <!--end of header-->
+        
+        <!--start of dashboard page-->
+        <div class="container">
+        
+        <!--portfolio table-->
+            <div class="portfolioTable-box">
+                <table id="allAircraftTable" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th style= "width:200px">MSN</th>
+                            <th style= "width:350px">Lessee</th>
+                            <th style= "width:300px">Status</th>
+                            <th style= "width:300px">Sub Status</th>
+                            
+                        
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <% for (let i=0; i < aircraft.length; i++){ %>
+                        <tr>
+                            <td style= "width:200px"><a href="/aircraft/<%=aircraft[i].id%>"><%=aircraft[i].msn%></a></td>
+                            <td style= "width:350px">
+                                <% if (aircraft[i].lessee) { %> <%=aircraft[i].lessee.name%> <% } %>
+                            </td>
+                            <td style= "width:300px"><%=aircraft[i].lease.status%></td>
+                            <td style= "width:300px"><%=aircraft[i].lease.sub_status%></td>
+                            
+                        </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+                
+            </div>
+            <!--piechart-->
+            <div class="aircraftType-box">
+                <h2>Portfolio by Aircraft Type</h2>
+                <p style="text-align:center">by NBV(US$m)</p></br>
+                <div class="aircraftType-chartContainer">
+                    <canvas id="aircraftTypeChart">
+                    </canvas>
+                </div>
+                
+            </div>
+            <!--barchart-->
+            <div class="aircraftAge-box">
+                <h2>Portfolio by Aircraft Age</h2>
+                <p style="text-align:center">by number of aircraft</p></br>
+                <div class="aircraftAge-chartContainer">
+                    <canvas id="aircraftAgeChart">
+                    </canvas>
+                </div>
+               
+            </div>
+
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+        <script src="/all.js"></script>
+        
+        <script type="text/javascript">
+        let allData = <%-JSON.stringify(aircraft)%>;
+        let total = allData.length;
+        console.log(typeof(allData[0].msn));
+        console.log(allData[0].aircraft.aircraft_model);
+
+        //Delivered + Committed aircraft type piechart
+        var aircraftType = {};
+        //map database into object of key value : summation
+        allData.forEach(function(x,i){
+            //sumif formula ---- sum nbv for each key value
+            aircraftType[x.aircraft.aircraft_model] = (aircraftType[x.aircraft.aircraft_model] || 0) + parseInt(allData[i].accounting.nbv/1000000);
+        });
+        console.log(aircraftType);
+        //generate pie chart
+        plotPieChart(Object.values(aircraftType),Object.keys(aircraftType),'aircraftTypeChart');
+
+        //var testDate = new Date ("December 1 2015");
+        //console.log(calculateAge(testDate));
+        
+        for (let i=0; i< allData.length; i++){
+            allData[i].age= calculateAge(allData[i].aircraft.manufactured_date);
+        };
+
+        var aircraftAge ={};
+        allData.forEach(function(x){
+            aircraftAge[(x.age)] = (aircraftAge[x.age] || 0)  + 1;
+        });        
+        console.log(aircraftAge);
+
+        var existingAgeArray = Object.keys(aircraftAge).map(function (x) { 
+            return parseInt(x, 10); 
+        });
+
+        console.log(existingAgeArray);
+        console.log(Math.max(...existingAgeArray));
+
+        var aircraftAgeX = [];
+        var maxAge = Math.max(...existingAgeArray);
+        var aircraftAgeY = Array(maxAge).fill(0);
+
+
+        for (let i=0; i<= maxAge; i++) {
+            aircraftAgeX.push(i);
+            for (let j=0; j<= existingAgeArray.length; j++){
+                if(existingAgeArray[j]===i){
+                    aircraftAgeY[i]=(Object.values(aircraftAge)[j])
+                } 
+            }
+            
+        }
+        console.log(aircraftAgeX);
+        console.log(aircraftAgeY);
+        plotBarChart(aircraftAgeY,aircraftAgeX,'aircraftAgeChart');
+
+
+        
+        
+
+
+        </script>
+    </body>
+</html>
