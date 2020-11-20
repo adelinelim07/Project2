@@ -41,7 +41,7 @@
                 <input type="string" name="aircraft.esn4" id="aircraft.esn4" value="<%=aircraft.aircraft.esn4%>"><br/>
             </label>
             <label><span>Manufactured Date</span>
-                <input type="date" name="aircraft.manufactured_date" id="aircraft.manufactured_date" value="<%=aircraft.aircraft.manufactured_date%>"></br>
+                <input type="date" name="aircraft.manufactured_date" id="aircraft.manufactured_date" value="<%=(aircraft.aircraft.manufactured_date).getfullYear()-(aircraft.aircraft.manufactured_date).getMonth()-(aircraft.aircraft.manufactured_date).getDate()%>"></br>
             </label>
             <!--Lease-->
             <label><span>Status</span>
